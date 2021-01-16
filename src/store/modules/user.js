@@ -33,12 +33,18 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        // {code: 20000,data: {token: "admin-token"}}
         const { data } = response
+        console.log(response)
         commit('SET_TOKEN', data.token)
         setToken(data.token)
         resolve()
       }).catch(error => {
-        reject(error)
+        /*
+            登陆失败走这里
+        */
+        console.dir(error.message)
+        reject(error.message)
       })
     })
   },
