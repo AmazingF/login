@@ -41,14 +41,20 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
+        // {code: 20000,data: {token: "admin-token"}}
         const { data } = response
+        console.log(response)
         commit('SET_TOKEN', data.token)
         commit('SET_Id', response.id)
         setToken(data.token)
         setId(response.id)
         resolve()
       }).catch(error => {
-        reject(error)
+        /*
+            登陆失败走这里
+        */
+        console.dir(error.message)
+        reject(error.message)
       })
     })
   },

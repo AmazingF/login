@@ -41,11 +41,11 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin(loginForm)">Login</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
+        <span style="margin-right:20px;">username</span>
+        <span> password</span>
       </div>
 
     </el-form>
@@ -59,9 +59,15 @@ export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
+<<<<<<< HEAD
       // if (!validUsername(value)) {
       //   callback(new Error('Please enter the correct user name'))
       // } else {
+=======
+      if (!value) {
+        callback(new Error('Please enter the correct user name'))
+      } else {
+>>>>>>> f87b0adadd754429177f7fab581bda0a211f9eca
         callback()
       // }
     }
@@ -109,7 +115,7 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
+          this.$store.dispatch('/login', this.loginForm).then(() => {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
           }).catch(() => {
