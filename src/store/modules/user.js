@@ -1,12 +1,14 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken,getId, setId, removeId } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    roles: [],
+    id: getId()
   }
 }
 
@@ -16,14 +18,20 @@ const mutations = {
   RESET_STATE: (state) => {
     Object.assign(state, getDefaultState())
   },
-  SET_TOKEN: (state, token) => {
+  SET_TOKEN: (state, token) => { // 存随机token
     state.token = token
+  },
+  SET_Id: (state, id) => { // 存用户的id
+    state.id = id
   },
   SET_NAME: (state, name) => {
     state.name = name
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_ROLES: (state, roles) => {
+    state.roles = roles
   }
 }
 
@@ -35,7 +43,9 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.token)
+        commit('SET_Id', response.id)
         setToken(data.token)
+        setId(response.id)
         resolve()
       }).catch(error => {
         reject(error)
@@ -46,16 +56,21 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
+      getInfo(state).then(response => {
+        const data = response
+        console.log(response)
+        //----
+        // 获取权限
+        if( response.roles ){
+          commit('SET_ROLES', response.roles)
+        }
+        //---
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
 
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
+        const { username, avatar } = data
+        commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
         resolve(data)
       }).catch(error => {
@@ -74,6 +89,15 @@ const actions = {
         resolve()
       }).catch(error => {
         reject(error)
+      });
+
+      logout(state.id).then(() => {
+        removeId() // 移除id
+        resetRouter()
+        commit('RESET_STATE')
+        resolve()
+      }).catch(error => {
+        reject(error)
       })
     })
   },
@@ -82,6 +106,7 @@ const actions = {
   resetToken({ commit }) {
     return new Promise(resolve => {
       removeToken() // must remove  token  first
+      removeId() // 移除id
       commit('RESET_STATE')
       resolve()
     })
